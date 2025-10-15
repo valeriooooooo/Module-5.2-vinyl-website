@@ -1,0 +1,51 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: black;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: auto;
+}
+
+.header .logo-link {
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header .vinyl-logo {
+    height: 50px;
+    width: auto;
+}
+
+.header h1 {
+    margin: 0;
+    text-align: left;
+}
+
+.header nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+.header nav ul a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.header nav ul a:hover {
+    opacity: 0.8;
+}
+
