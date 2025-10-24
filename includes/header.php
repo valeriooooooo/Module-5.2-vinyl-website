@@ -9,6 +9,7 @@
             <a href="about.php">About</a>
             <a href="contact.php">Contact</a>
             <a href="checkout.php">Checkout</a>
+            <a href="login.php">Login</a>
         </ul>
     </nav>
 </div>
