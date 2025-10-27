@@ -297,7 +297,7 @@
                 price: 24.99,
                 category: "rap",
                 stock: 7,
-                image: "PLAK HIER DE URL VAN DE ASTROWORLD ALBUMCOVER"
+                image: "https://media.s-bol.com/NoJRWlQO5r3m/v2LP92n/550x550.jpg"
             },
             {
                 id: 3,
@@ -307,7 +307,7 @@
                 price: 22.99,
                 category: "rap",
                 stock: 10,
-                image: "PLAK HIER DE URL VAN DE IGOR ALBUMCOVER"
+                image: "https://media.s-bol.com/7gnAvpjB3gw/j2X1gJv/550x493.jpg"
             },
             {
                 id: 4,
@@ -317,7 +317,7 @@
                 price: 26.99,
                 category: "rap",
                 stock: 5,
-                image: "PLAK HIER DE URL VAN DE GOOD KID MAAD CITY ALBUMCOVER"
+                image: "https://media.s-bol.com/3KAYBkRvW6z4/voMKVPr/1200x1200.jpg"
             },
             {
                 id: 5,
@@ -327,7 +327,7 @@
                 price: 29.99,
                 category: "rap",
                 stock: 4,
-                image: "PLAK HIER DE URL VAN DE MBDTF ALBUMCOVER"
+                image: "https://media.s-bol.com/KAg9vW6qGVRJ/7zjoKy/550x550.jpg"
             },
             {
                 id: 6,
@@ -337,7 +337,7 @@
                 price: 23.99,
                 category: "rap",
                 stock: 6,
-                image: "PLAK HIER DE URL VAN DE RODEO ALBUMCOVER"
+                image: "https://media.s-bol.com/JKlvw8KWz0kv/nN34NP/1197x1200.jpg"
             },
             {
                 id: 7,
@@ -347,7 +347,7 @@
                 price: 21.99,
                 category: "rap",
                 stock: 9,
-                image: "PLAK HIER DE URL VAN DE CALL ME IF YOU GET LOST ALBUMCOVER"
+                image: "https://i.scdn.co/image/ab67616d0000b273696b4e67423edd64784bfbb4"
             },
             {
                 id: 8,
@@ -357,7 +357,7 @@
                 price: 27.99,
                 category: "rap",
                 stock: 8,
-                image: "PLAK HIER DE URL VAN DE TO PIMP A BUTTERFLY ALBUMCOVER"
+                image: "https://media.s-bol.com/8X43Em6kwmjl/Yx24p0/1200x1200.jpg"
             },
             // ROCK ALBUMS
             {
@@ -368,7 +368,7 @@
                 price: 34.99,
                 category: "rock",
                 stock: 5,
-                image: "PLAK HIER DE URL VAN DE DARK SIDE OF THE MOON ALBUMCOVER"
+                image: "https://media.s-bol.com/NZ0NvAqk00m/550x484.jpg"
             },
             {
                 id: 10,
@@ -378,7 +378,7 @@
                 price: 32.99,
                 category: "rock",
                 stock: 3,
-                image: "PLAK HIER DE URL VAN DE ABBEY ROAD ALBUMCOVER"
+                image: "https://media.s-bol.com/rMQAVyOBo6Jp/5xj91x/550x550.jpg"
             },
             {
                 id: 11,
@@ -388,7 +388,7 @@
                 price: 31.99,
                 category: "rock",
                 stock: 8,
-                image: "PLAK HIER DE URL VAN DE RUMOURS ALBUMCOVER"
+                image: "https://media.s-bol.com/krxWDX0OxGXJ/1200x1200.jpg"
             },
             {
                 id: 12,
@@ -398,17 +398,17 @@
                 price: 33.99,
                 category: "rock",
                 stock: 6,
-                image: "PLAK HIER DE URL VAN DE LED ZEPPELIN IV ALBUMCOVER"
+                image: "https://media.s-bol.com/rmG5prlvjGqw/1200x1038.jpg"
             },
             {
                 id: 13,
-                artist: "Nirvana",
-                title: "Nevermind",
-                year: "1991",
-                price: 28.99,
+                artist: "Bruce Springsteen",
+                title: "Born to Run",
+                year: "1975",
+                price: 24.99,
                 category: "rock",
                 stock: 12,
-                image: "PLAK HIER DE URL VAN DE NEVERMIND ALBUMCOVER"
+                image: "https://media.s-bol.com/r83p45oVxBjK/1188x1200.jpg"
             },
             // JAZZ ALBUMS
             {
@@ -419,17 +419,17 @@
                 price: 29.99,
                 category: "jazz",
                 stock: 12,
-                image: "PLAK HIER DE URL VAN DE KIND OF BLUE ALBUMCOVER"
+                image: "https://media.s-bol.com/mBzZg6PG9zE/550x556.jpg"
             },
             {
                 id: 15,
                 artist: "John Coltrane",
-                title: "A Love Supreme",
-                year: "1965",
+                title: "Giant Steps",
+                year: "1960",
                 price: 28.99,
                 category: "jazz",
                 stock: 10,
-                image: "PLAK HIER DE URL VAN DE A LOVE SUPREME ALBUMCOVER"
+                image: "https://m.media-amazon.com/images/I/71pyHkXo+aL.jpg"
             },
             // POP ALBUMS
             {
@@ -440,7 +440,7 @@
                 price: 36.99,
                 category: "pop",
                 stock: 0,
-                image: "PLAK HIER DE URL VAN DE THRILLER ALBUMCOVER"
+                image: "https://m.media-amazon.com/images/I/81ogsUqshzL.jpg"
             },
             {
                 id: 17,
