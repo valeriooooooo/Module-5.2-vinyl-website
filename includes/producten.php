@@ -444,13 +444,13 @@
             },
             {
                 id: 17,
-                artist: "Taylor Swift",
-                title: "1989",
-                year: "2014",
+                artist: "Lady Gaga",
+                title: "The Fame Monster",
+                year: "2009",
                 price: 25.99,
                 category: "pop",
                 stock: 11,
-                image: "PLAK HIER DE URL VAN DE 1989 ALBUMCOVER"
+                image: "https://media.s-bol.com/7DEV2B6AGLXG/1q22XP/1200x1200.jpg"
             },
             {
                 id: 18,
@@ -460,18 +460,18 @@
                 price: 24.99,
                 category: "pop",
                 stock: 7,
-                image: "PLAK HIER DE URL VAN DE AFTER HOURS ALBUMCOVER"
+                image: "https://media.s-bol.com/noqyR9PVDQvl/8jy9Ql/550x543.jpg"
             },
             // KLASSIEK ALBUMS
             {
                 id: 19,
-                artist: "Beethoven",
-                title: "Symphony No. 9",
-                year: "1824",
+                artist: "Jon Batiste",
+                title: "Beethoven Blues",
+                year: "2024",
                 price: 27.99,
                 category: "klassiek",
                 stock: 15,
-                image: "PLAK HIER DE URL VAN EEN BEETHOVEN SYMPHONY 9 ALBUMCOVER"
+                image: "https://media.s-bol.com/2lYmgG1RJYXW/qx8mLWy/550x550.jpg"
             }
         ];
 
