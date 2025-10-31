@@ -120,8 +120,25 @@
         .product-afbeelding img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             background: #000;
+            display: block;
+        }
+        
+        .product-afbeelding img.error {
+            display: none;
+        }
+        
+        .product-afbeelding.no-image {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .product-afbeelding.no-image::after {
+            content: '🎵';
+            font-size: 80px;
         }
 
         .vinyl-icoon {
@@ -253,9 +270,70 @@
                 gap: 30px;
             }
         }
+
+        /* Toast Notificatie */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background-color: #000;
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            font-size: 24px;
+        }
+
+        .toast-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toast-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 15px;
+        }
     </style>
 </head>
 <body>
+    <!-- Toast Notificatie -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">✅</span>
+        <div class="toast-content">
+            <div class="toast-title">Toegevoegd aan winkelwagen</div>
+            <div class="toast-message" id="toastMessage"></div>
+        </div>
+        <button class="toast-close" onclick="hideToast()">✕</button>
+    </div>
+
     <section class="products-section">
         <div class="sectie-header">
             <h2>Onze Collectie</h2>
@@ -276,204 +354,46 @@
         </div>
     </section>
 
+    <?php
+    // Haal producten op uit database
+    include 'includes/connect.php';
+    $result = $conn->query("SELECT * FROM albums");
+    $producten_array = [];
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $producten_array[] = $row;
+        }
+    }
+    ?>
+
     <script>
-        const producten = [
-            // RAP ALBUMS
-            {
-                id: 1,
-                artist: "Playboi Carti",
-                title: "Whole Lotta Red",
-                year: "2020",
-                price: 19.99,
-                category: "rap",
-                stock: 8,
-                image: "https://media.pitchfork.com/photos/5fe1fc4eb35e0eefa6919e92/master/pass/Playboi-Carti.jpg"
-            },
-            {
-                id: 2,
-                artist: "Travis Scott",
-                title: "ASTROWORLD",
-                year: "2018",
-                price: 24.99,
-                category: "rap",
-                stock: 7,
-                image: "https://media.s-bol.com/NoJRWlQO5r3m/v2LP92n/550x550.jpg"
-            },
-            {
-                id: 3,
-                artist: "Tyler, The Creator",
-                title: "IGOR",
-                year: "2019",
-                price: 22.99,
-                category: "rap",
-                stock: 10,
-                image: "https://media.s-bol.com/7gnAvpjB3gw/j2X1gJv/550x493.jpg"
-            },
-            {
-                id: 4,
-                artist: "Kendrick Lamar",
-                title: "good kid, m.A.A.d city",
-                year: "2012",
-                price: 26.99,
-                category: "rap",
-                stock: 5,
-                image: "https://media.s-bol.com/3KAYBkRvW6z4/voMKVPr/1200x1200.jpg"
-            },
-            {
-                id: 5,
-                artist: "Kanye West",
-                title: "My Beautiful Dark Twisted Fantasy",
-                year: "2010",
-                price: 29.99,
-                category: "rap",
-                stock: 4,
-                image: "https://media.s-bol.com/KAg9vW6qGVRJ/7zjoKy/550x550.jpg"
-            },
-            {
-                id: 6,
-                artist: "Travis Scott",
-                title: "Rodeo",
-                year: "2015",
-                price: 23.99,
-                category: "rap",
-                stock: 6,
-                image: "https://media.s-bol.com/JKlvw8KWz0kv/nN34NP/1197x1200.jpg"
-            },
-            {
-                id: 7,
-                artist: "Tyler, The Creator",
-                title: "CALL ME IF YOU GET LOST",
-                year: "2021",
-                price: 21.99,
-                category: "rap",
-                stock: 9,
-                image: "https://i.scdn.co/image/ab67616d0000b273696b4e67423edd64784bfbb4"
-            },
-            {
-                id: 8,
-                artist: "Kendrick Lamar",
-                title: "To Pimp a Butterfly",
-                year: "2015",
-                price: 27.99,
-                category: "rap",
-                stock: 8,
-                image: "https://media.s-bol.com/8X43Em6kwmjl/Yx24p0/1200x1200.jpg"
-            },
-            // ROCK ALBUMS
-            {
-                id: 9,
-                artist: "Pink Floyd",
-                title: "The Dark Side of the Moon",
-                year: "1973",
-                price: 34.99,
-                category: "rock",
-                stock: 5,
-                image: "https://media.s-bol.com/NZ0NvAqk00m/550x484.jpg"
-            },
-            {
-                id: 10,
-                artist: "The Beatles",
-                title: "Abbey Road",
-                year: "1969",
-                price: 32.99,
-                category: "rock",
-                stock: 3,
-                image: "https://media.s-bol.com/rMQAVyOBo6Jp/5xj91x/550x550.jpg"
-            },
-            {
-                id: 11,
-                artist: "Fleetwood Mac",
-                title: "Rumours",
-                year: "1977",
-                price: 31.99,
-                category: "rock",
-                stock: 8,
-                image: "https://media.s-bol.com/krxWDX0OxGXJ/1200x1200.jpg"
-            },
-            {
-                id: 12,
-                artist: "Led Zeppelin",
-                title: "Led Zeppelin IV",
-                year: "1971",
-                price: 33.99,
-                category: "rock",
-                stock: 6,
-                image: "https://media.s-bol.com/rmG5prlvjGqw/1200x1038.jpg"
-            },
-            {
-                id: 13,
-                artist: "Bruce Springsteen",
-                title: "Born to Run",
-                year: "1975",
-                price: 24.99,
-                category: "rock",
-                stock: 12,
-                image: "https://media.s-bol.com/r83p45oVxBjK/1188x1200.jpg"
-            },
-            // JAZZ ALBUMS
-            {
-                id: 14,
-                artist: "Miles Davis",
-                title: "Kind of Blue",
-                year: "1959",
-                price: 29.99,
-                category: "jazz",
-                stock: 12,
-                image: "https://media.s-bol.com/mBzZg6PG9zE/550x556.jpg"
-            },
-            {
-                id: 15,
-                artist: "John Coltrane",
-                title: "Giant Steps",
-                year: "1960",
-                price: 28.99,
-                category: "jazz",
-                stock: 10,
-                image: "https://m.media-amazon.com/images/I/71pyHkXo+aL.jpg"
-            },
-            // POP ALBUMS
-            {
-                id: 16,
-                artist: "Michael Jackson",
-                title: "Thriller",
-                year: "1982",
-                price: 36.99,
-                category: "pop",
-                stock: 0,
-                image: "https://m.media-amazon.com/images/I/81ogsUqshzL.jpg"
-            },
-            {
-                id: 17,
-                artist: "Lady Gaga",
-                title: "The Fame Monster",
-                year: "2009",
-                price: 25.99,
-                category: "pop",
-                stock: 11,
-                image: "https://media.s-bol.com/7DEV2B6AGLXG/1q22XP/1200x1200.jpg"
-            },
-            {
-                id: 18,
-                artist: "The Weeknd",
-                title: "After Hours",
-                year: "2020",
-                price: 24.99,
-                category: "pop",
-                stock: 7,
-                image: "https://media.s-bol.com/noqyR9PVDQvl/8jy9Ql/550x543.jpg"
-            },
-            // KLASSIEK ALBUMS
-            {
-                id: 19,
-                artist: "Jon Batiste",
-                title: "Beethoven Blues",
-                year: "2024",
-                price: 27.99,
-                category: "klassiek",
-                stock: 15,
-                image: "https://media.s-bol.com/2lYmgG1RJYXW/qx8mLWy/550x550.jpg"
-            }
-        ];
+        // Laad producten vanuit PHP naar JavaScript
+        const producten = <?php echo json_encode($producten_array); ?>;
+        
+        // DEBUG: Laat zien wat we krijgen
+        console.log('Producten geladen:', producten);
+        if (producten.length > 0) {
+            console.log('Eerste product:', producten[0]);
+            console.log('Kolommen:', Object.keys(producten[0]));
+        }
+        
+        // Converteer en normaliseer alle velden
+        producten.forEach(p => {
+            // Normaliseer ID
+            if (p.album_id) p.id = parseInt(p.album_id);
+            
+            // Normaliseer afbeelding
+            if (p.cover_image) p.image = p.cover_image;
+            
+            // Normaliseer categorie
+            if (p.genre) p.category = p.genre;
+            
+            // Normaliseer voorraad
+            if (p.in_stock !== undefined) p.stock = parseInt(p.in_stock);
+            
+            // Converteer price
+            p.price = parseFloat(p.price);
+        });
 
         let huidigeFilter = 'alle';
 
@@ -485,8 +405,8 @@
 
             grid.innerHTML = gefilterdeProducten.map(product => `
                 <div class="product-kaart" data-category="${product.category}">
-                    <div class="product-afbeelding" style="background: ${product.gradient || '#000'}">
-                        ${product.image ? `<img src="${product.image}" alt="${product.title}">` : '<div class="vinyl-icoon"></div>'}
+                    <div class="product-afbeelding ${!product.image ? 'no-image' : ''}" style="background: ${product.gradient || '#000'}">
+                        ${product.image ? `<img src="${product.image}" alt="${product.title}" onerror="this.parentElement.classList.add('no-image'); this.style.display='none';">` : ''}
                     </div>
                     <div class="product-info">
                         <div class="product-artiest">${product.artist}</div>
@@ -516,7 +436,50 @@
 
         function toevoegenAanWinkelwagen(productId) {
             const product = producten.find(p => p.id === productId);
-            alert(`${product.title} toegevoegd aan winkelwagen!`);
+            
+            // Verstuur product naar server om toe te voegen aan sessie
+            fetch('toevoegen_aan_checkout.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: product.id,
+                    artist: product.artist,
+                    title: product.title,
+                    year: product.year,
+                    price: product.price,
+                    image: product.image,
+                    quantity: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    showToast(`${product.title} - ${product.artist}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast(`${product.title} - ${product.artist}`);
+            });
+        }
+
+        function showToast(productInfo) {
+            const toast = document.getElementById('toast');
+            const message = document.getElementById('toastMessage');
+            message.textContent = productInfo;
+            toast.classList.add('show');
+            
+            // Automatisch verbergen na 3 seconden
+            setTimeout(() => {
+                hideToast();
+            }, 3000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('show');
         }
 
         toonProducten();
