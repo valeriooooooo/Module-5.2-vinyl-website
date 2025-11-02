@@ -23,18 +23,82 @@ while ($col = $columns_result->fetch_assoc()) {
     if ($field == 'stock') $stock_column = 'stock';
 }
 
+// Helper: verwerk geüploade afbeelding en geef relatief pad terug (of null bij geen upload)
+function handleUploadedImage($file, &$error_message = null) {
+    if (!isset($file) || !is_array($file) || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        return null; // Geen bestand geüpload
+    }
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        $error_message = 'Uploadfout (code ' . (int)$file['error'] . ').';
+        return null;
+    }
+
+    // Beperk bestandsgrootte tot ~3MB
+    if ($file['size'] > 3 * 1024 * 1024) {
+        $error_message = 'Bestand is te groot (maximaal 3MB).';
+        return null;
+    }
+
+    // Controleer MIME-type via finfo
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($file['tmp_name']);
+    $allowed = [
+        'image/jpeg' => '.jpg',
+        'image/png'  => '.png',
+        'image/gif'  => '.gif',
+        'image/webp' => '.webp'
+    ];
+    if (!isset($allowed[$mime])) {
+        $error_message = 'Alleen JPEG/PNG/GIF/WebP afbeeldingen zijn toegestaan.';
+        return null;
+    }
+
+    $ext = $allowed[$mime];
+    $uploadDirRel = 'assets/uploads';
+    $uploadDirAbs = __DIR__ . '/' . $uploadDirRel; // __DIR__ = map van admin.php
+    if (!is_dir($uploadDirAbs)) {
+        @mkdir($uploadDirAbs, 0777, true);
+    }
+
+    // Genereer unieke bestandsnaam
+    $unique = date('Ymd_His') . '_' . bin2hex(random_bytes(4));
+    $filename = 'cover_' . $unique . $ext;
+    $destAbs = $uploadDirAbs . '/' . $filename;
+    $destRel = $uploadDirRel . '/' . $filename; // voor opslag in DB / gebruik in <img>
+
+    if (!move_uploaded_file($file['tmp_name'], $destAbs)) {
+        $error_message = 'Kon bestand niet opslaan.';
+        return null;
+    }
+
+    return $destRel;
+}
+
 // CREATE - Product toevoegen
 if (isset($_POST['add_product'])) {
     $artist = $_POST['artist'];
     $title = $_POST['title'];
-    $year = $_POST['year'];
-    $price = $_POST['price'];
+    // Typecasting naar correcte types
+    $year = isset($_POST['year']) ? (int)$_POST['year'] : null;
+    $price = isset($_POST['price']) ? (float)$_POST['price'] : 0.0;
     $category = $_POST['category'];
-    $stock = $_POST['stock'];
-    $image = $_POST['image'];
+    $stock = isset($_POST['stock']) ? (int)$_POST['stock'] : 0;
+    $image = isset($_POST['image']) ? trim($_POST['image']) : '';
+
+    // Als er een bestand is geüpload, krijgt dat voorrang op de URL
+    $uploadError = null;
+    $uploadedPath = handleUploadedImage($_FILES['image_file'] ?? null, $uploadError);
+    if ($uploadedPath) {
+        $image = $uploadedPath;
+    }
+    if (!$image) {
+        $error_message = $uploadError ?: 'Voer een afbeelding URL in of upload een afbeelding.';
+    }
     
     $stmt = $conn->prepare("INSERT INTO albums (artist, title, year, price, genre, in_stock, cover_image) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssdis", $artist, $title, $year, $price, $category, $stock, $image);
+    // artist(s), title(s), year(i), price(d), genre(s), in_stock(i), cover_image(s)
+    $stmt->bind_param("ssidsis", $artist, $title, $year, $price, $category, $stock, $image);
     
     if ($stmt->execute()) {
         $success_message = "Product succesvol toegevoegd!";
@@ -46,17 +110,25 @@ if (isset($_POST['add_product'])) {
 
 // UPDATE - Product aanpassen
 if (isset($_POST['update_product'])) {
-    $id = $_POST['id'];
+    $id = (int)$_POST['id'];
     $artist = $_POST['artist'];
     $title = $_POST['title'];
-    $year = $_POST['year'];
-    $price = $_POST['price'];
+    $year = isset($_POST['year']) ? (int)$_POST['year'] : null;
+    $price = isset($_POST['price']) ? (float)$_POST['price'] : 0.0;
     $category = $_POST['category'];
-    $stock = $_POST['stock'];
-    $image = $_POST['image'];
+    $stock = isset($_POST['stock']) ? (int)$_POST['stock'] : 0;
+    $image = isset($_POST['image']) ? trim($_POST['image']) : '';
+
+    // Nieuwe upload overschrijft bestaande URL
+    $uploadError = null;
+    $uploadedPath = handleUploadedImage($_FILES['image_file'] ?? null, $uploadError);
+    if ($uploadedPath) {
+        $image = $uploadedPath;
+    }
     
     $stmt = $conn->prepare("UPDATE albums SET artist=?, title=?, year=?, price=?, genre=?, in_stock=?, cover_image=? WHERE album_id=?");
-    $stmt->bind_param("ssssdisi", $artist, $title, $year, $price, $category, $stock, $image, $id);
+    // artist(s), title(s), year(i), price(d), genre(s), in_stock(i), cover_image(s), id(i)
+    $stmt->bind_param("ssidsisi", $artist, $title, $year, $price, $category, $stock, $image, $id);
     
     if ($stmt->execute()) {
         $success_message = "Product succesvol aangepast!";
@@ -355,6 +427,86 @@ if (isset($_GET['edit'])) {
             color: #333;
         }
 
+        /* Verwijder bevestiging modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-overlay.is-open { display: flex; }
+
+        .modal {
+            background: #fff;
+            max-width: 480px;
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .modal header {
+            background: #000;
+            color: #fff;
+            padding: 14px 18px;
+            font-weight: 600;
+        }
+
+        .modal .content {
+            padding: 18px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 14px 18px 18px;
+        }
+
+        .btn-light {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .btn-light:hover { background: #dde1e5; }
+
+        /* Klein plusje (floating action button) om formulier te tonen */
+        .fab-add {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: #000;
+            color: #fff;
+            font-size: 26px;
+            line-height: 44px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease, background 0.2s ease;
+            z-index: 1000;
+        }
+
+        .fab-add:hover {
+            background: #333;
+            transform: scale(1.05);
+        }
+
+        /* Collapsible form behavior */
+        .form-section.is-collapsed {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -395,9 +547,10 @@ if (isset($_GET['edit'])) {
         <?php endif; ?>
 
         <!-- FORMULIER VOOR TOEVOEGEN/BEWERKEN -->
-        <div class="form-section">
+        <?php $formCollapsed = $edit_product ? false : true; ?>
+        <div class="form-section <?php echo $formCollapsed ? 'is-collapsed' : ''; ?>" id="addForm">
             <h2><?php echo $edit_product ? '✏️ Product Bewerken' : '➕ Nieuw Product Toevoegen'; ?></h2>
-            <form method="POST" action="admin.php">
+            <form method="POST" action="admin.php" enctype="multipart/form-data">
                 <?php if ($edit_product): ?>
                     <input type="hidden" name="id" value="<?php echo $edit_product['album_id']; ?>">
                 <?php endif; ?>
@@ -441,7 +594,13 @@ if (isset($_GET['edit'])) {
 
                     <div class="form-group full-width">
                         <label>Afbeelding URL</label>
-                        <input type="url" name="image" required value="<?php echo $edit_product ? htmlspecialchars($edit_product['cover_image']) : ''; ?>">
+                        <input type="url" name="image" placeholder="https://... (optioneel als je upload gebruikt)" value="<?php echo $edit_product ? htmlspecialchars($edit_product['cover_image']) : ''; ?>">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Upload Afbeelding (JPEG/PNG/GIF/WebP, max 3MB)</label>
+                        <input type="file" name="image_file" accept="image/*">
+                        <small style="color:#666; margin-top:6px;">Als je een bestand uploadt, heeft dat voorrang op de URL hierboven.</small>
                     </div>
                 </div>
 
@@ -489,7 +648,7 @@ if (isset($_GET['edit'])) {
                                 <td>
                                     <div class="action-buttons">
                                         <a href="admin.php?edit=<?php echo $product['album_id']; ?>" class="btn-edit">✏️ Bewerken</a>
-                                        <a href="admin.php?delete=<?php echo $product['album_id']; ?>" class="btn-delete" onclick="return confirm('Weet je zeker dat je dit product wilt verwijderen?');">🗑️ Verwijderen</a>
+                                        <a href="admin.php?delete=<?php echo $product['album_id']; ?>" class="btn-delete" data-title="<?php echo htmlspecialchars($product['title']); ?>">🗑️ Verwijderen</a>
                                     </div>
                                 </td>
                             </tr>
@@ -501,6 +660,23 @@ if (isset($_GET['edit'])) {
             <?php endif; ?>
         </div>
     </div>
+
+    <!-- Bevestiging modal -->
+    <div class="modal-overlay" id="confirmModal" aria-hidden="true" role="dialog" aria-modal="true">
+        <div class="modal" role="document">
+            <header>Bevestig verwijderen</header>
+            <div class="content">
+                <p id="confirmText">Weet je zeker dat je dit item wilt verwijderen?</p>
+            </div>
+            <div class="actions">
+                <button type="button" class="btn btn-light" id="cancelDelete">Annuleren</button>
+                <button type="button" class="btn btn-delete" id="confirmDelete">Verwijderen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Klein plusje voor tonen/verbergen formulier -->
+    <button type="button" id="toggleAddForm" class="fab-add" aria-controls="addForm" aria-expanded="<?php echo $formCollapsed ? 'false' : 'true'; ?>" title="Nieuw product toevoegen">+</button>
 
     <script>
         // Scroll naar formulier bij bewerken
@@ -519,6 +695,62 @@ if (isset($_GET['edit'])) {
                 }, 500);
             });
         }, 5000);
+
+        // Toggle gedrag voor het toevoegformulier via het kleine plusje
+        (function() {
+            const btn = document.getElementById('toggleAddForm');
+            const form = document.getElementById('addForm');
+            if (!btn || !form) return;
+
+            btn.addEventListener('click', function() {
+                const collapsed = form.classList.toggle('is-collapsed');
+                btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            });
+        })();
+
+        // Verwijderen modal - centraal in beeld
+        (function() {
+            const overlay = document.getElementById('confirmModal');
+            const text = document.getElementById('confirmText');
+            const cancelBtn = document.getElementById('cancelDelete');
+            const confirmBtn = document.getElementById('confirmDelete');
+            let targetHref = null;
+
+            function openModal(href, titel) {
+                targetHref = href;
+                text.textContent = titel ? `Weet je zeker dat je "${titel}" wilt verwijderen?` : 'Weet je zeker dat je dit item wilt verwijderen?';
+                overlay.classList.add('is-open');
+                overlay.setAttribute('aria-hidden', 'false');
+                confirmBtn.focus();
+            }
+
+            function closeModal() {
+                overlay.classList.remove('is-open');
+                overlay.setAttribute('aria-hidden', 'true');
+                targetHref = null;
+            }
+
+            // Intercept delete links
+            document.addEventListener('click', function(e) {
+                const link = e.target.closest('a.btn-delete');
+                if (!link) return;
+                e.preventDefault();
+                const href = link.getAttribute('href');
+                const title = link.getAttribute('data-title');
+                openModal(href, title);
+            });
+
+            cancelBtn.addEventListener('click', closeModal);
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) closeModal();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+            });
+            confirmBtn.addEventListener('click', function() {
+                if (targetHref) window.location.href = targetHref;
+            });
+        })();
     </script>
 </body>
 </html>

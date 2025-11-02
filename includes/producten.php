@@ -183,6 +183,17 @@
 
         .product-info {
             padding: 25px;
+            display: flex;
+            flex-direction: column;
+            flex: 1; /* duw knop naar onderkant van kaart */
+        }
+
+        /* Cluster met voorraad + knop onderin uitlijnen */
+        .product-bottom {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .product-artiest {
@@ -243,6 +254,7 @@
             font-size: 16px;
             transition: all 0.3s;
             font-family: 'Georgia', serif;
+            /* uitlijning naar onder gebeurt via .product-bottom */
         }
 
         .toevoegen-knop:hover {
@@ -413,12 +425,14 @@
                         <div class="product-titel">${product.title}</div>
                         <div class="product-jaar">${product.year}</div>
                         <div class="product-prijs">€${product.price.toFixed(2)}</div>
-                        <div class="product-voorraad ${product.stock === 0 ? 'uitverkocht' : product.stock < 5 ? 'beperkt' : ''}">
-                            ${product.stock === 0 ? 'Uitverkocht' : product.stock < 5 ? `Nog ${product.stock} op voorraad` : 'Op voorraad'}
+                        <div class="product-bottom">
+                            <div class="product-voorraad ${product.stock === 0 ? 'uitverkocht' : product.stock < 5 ? 'beperkt' : ''}">
+                                ${product.stock === 0 ? 'Uitverkocht' : product.stock < 5 ? `Nog ${product.stock} op voorraad` : 'Op voorraad'}
+                            </div>
+                            <button class="toevoegen-knop" ${product.stock === 0 ? 'disabled' : ''} onclick="toevoegenAanWinkelwagen(${product.id})">
+                                ${product.stock === 0 ? 'Uitverkocht' : 'Toevoegen aan winkelwagen'}
+                            </button>
                         </div>
-                        <button class="toevoegen-knop" ${product.stock === 0 ? 'disabled' : ''} onclick="toevoegenAanWinkelwagen(${product.id})">
-                            ${product.stock === 0 ? 'Uitverkocht' : 'Toevoegen aan winkelwagen'}
-                        </button>
                     </div>
                 </div>
             `).join('');

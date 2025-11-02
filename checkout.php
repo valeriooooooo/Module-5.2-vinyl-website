@@ -204,6 +204,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     grid-column: 1 / -1;
 }
 
+/* Telefoon veld met landkeuze */
+.phone-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 480px) {
+    .phone-row {
+        grid-template-columns: 120px 1fr;
+    }
+}
+
 .form-card input,
 .form-card select {
     width: 100%;
@@ -589,13 +602,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" name="achternaam" placeholder="Achternaam" required>
                         <input type="text" name="adres" placeholder="Straatnaam 123" required class="full-width">
                         <input type="text" name="postcode" placeholder="1234 AB" required>
-                        <select name="land" required>
+                        <select name="land" id="land" required>
                             <option value="Nederland">Nederland</option>
-                            <option value="Belgi�">Belgi�</option>
+                            <option value="Belgie">Belgi&euml;</option>
                             <option value="Duitsland">Duitsland</option>
-                            <option value="Frankrijk">Frankrijk</option>
                         </select>
-                        <input type="tel" name="telefoon" placeholder="+31 6 12345678" required class="full-width">
+                        <input id="phoneInput" type="tel" name="telefoon" placeholder="+31 6 12345678" required class="full-width">
                     </div>
                 </div>
 
@@ -813,6 +825,54 @@ document.getElementById('removeModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeRemoveModal();
     }
+});
+
+// Telefoonnummer validatie op basis van gekozen land (land-select)
+document.addEventListener('DOMContentLoaded', function() {
+    const landSelect = document.getElementById('land');
+    const phoneInput = document.getElementById('phoneInput');
+    if (!landSelect || !phoneInput) return;
+
+    const configs = {
+        'Nederland': {
+            code: '+31',
+            placeholder: '+31 6 12345678',
+            pattern: '^\\+31\\s?6\\s?\\d{8}$',
+            message: 'Voer een geldig Nederlands mobiel nummer in, bijv. +31 6 12345678'
+        },
+        'Belgie': {
+            code: '+32',
+            placeholder: '+32 4 12 34 56 78',
+            pattern: '^\\+32\\s?4\\d{8}$',
+            message: 'Voer een geldig Belgisch mobiel nummer in, bijv. +32 4 12 34 56 78'
+        },
+        'Duitsland': {
+            code: '+49',
+            placeholder: '+49 15 123456789',
+            pattern: '^\\+49\\s?1\\d{9,11}$',
+            message: 'Voer een geldig Duits mobiel nummer in, bijv. +49 15 123456789'
+        }
+    };
+
+    function applyConfig() {
+        const land = landSelect.value;
+        const cfg = configs[land] || configs['Nederland'];
+        phoneInput.placeholder = cfg.placeholder;
+        phoneInput.setAttribute('pattern', cfg.pattern);
+        const current = phoneInput.value.trim();
+        if (current === '' || !/^\+\d+/.test(current)) {
+            phoneInput.value = cfg.code + ' ';
+        } else {
+            // Vervang bestaande landcode door de juiste
+            const rest = current.replace(/^\+\d+\s?/, '');
+            phoneInput.value = cfg.code + ' ' + rest;
+        }
+        phoneInput.oninvalid = () => phoneInput.setCustomValidity(cfg.message);
+        phoneInput.oninput = () => phoneInput.setCustomValidity('');
+    }
+
+    landSelect.addEventListener('change', applyConfig);
+    applyConfig();
 });
 </script>
 

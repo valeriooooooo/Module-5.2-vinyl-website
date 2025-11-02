@@ -12,6 +12,7 @@ body {
     align-items: center;
     justify-content: space-between;
     height: auto;
+    position: relative;
 }
 
 .header .logo-link {
@@ -40,6 +41,11 @@ body {
     gap: 20px;
 }
 
+/* Extra defensief: verwijder markers uit eventuele li's */
+.header nav ul li { list-style: none; }
+.header nav ul li::marker { content: ''; }
+.header nav ul li a { display: inline-block; }
+
 .header nav ul a {
     color: #fff;
     text-decoration: none;
@@ -47,6 +53,59 @@ body {
 
 .header nav ul a:hover {
     opacity: 0.8;
+}
+
+/* Hamburger button (verborgen op desktop) */
+.hamburger {
+    display: none;
+    width: 44px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+}
+
+.hamburger span {
+    display: block;
+    height: 3px;
+    background: #fff;
+    margin: 6px 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    width: 28px;
+    border-radius: 2px;
+}
+
+/* Mobiel nav */
+@media (max-width: 992px) {
+    .header .logo-link h1 { font-size: 20px; }
+
+    .header nav { display: none !important; }
+    .header.open nav { display: block !important; }
+
+    .hamburger { display: inline-flex; }
+
+    .header nav {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: 0;
+        background: #000;
+        border-top: 1px solid #333;
+        z-index: 100;
+    }
+    .header nav ul {
+        flex-direction: column;
+        gap: 0;
+    }
+    .header nav ul li { list-style: none; }
+    .header nav ul a {
+        display: block;
+        padding: 14px 20px;
+        border-bottom: 1px solid #222;
+    }
 }
 
 .footer {
