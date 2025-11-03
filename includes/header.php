@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <div class="header" id="siteHeader">
     <a href="index.php" class="logo-link">
         <img src="assets/images/vinyl-logo.jpg" alt="Vinyl Logo" class="vinyl-logo">
@@ -16,9 +19,6 @@
             <li><a href="index.php">Home</a></li>
             <li><a href="checkout.php">Checkout</a></li>
             <li><a href="login.php">Login</a></li>
-        </ul>
-    </nav>
-</div>
 
 <script>
 // Toggle mobiel menu
